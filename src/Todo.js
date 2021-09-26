@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
-import { addTodo, deleteTodo, editTodo, selectorTodo, isDoneToggle } from './redux/todo/todoSlice'
+import { addTodo, deleteTodo, editTodo, isDoneToggle, selectorTodo } from './redux/todo/todoSlice'
+import { allFilter, doneFilter, unDoneFilter, selectorFilter } from './redux/filter/filterSlice'
 
 import TodoItem from './TodoItem.js'
 import { Button, Wrap } from './style/GlobalStyle'
@@ -28,17 +29,13 @@ const WrapTodo = styled(Wrap)`
 // main Component --------------------------
 const Todo = () => {
   const todos = useSelector(selectorTodo)
+  const filter = useSelector(selectorFilter)
   const dispatch = useDispatch()
+
   const [value, setValue] = useState("")
-  const [filter, setFilter] = useState("All")
   const [isEdit, setIsEdit] = useState(false)
   const [editId, setEditId] = useState(null)
 
-  const FILTER_MAP = {
-    "All": todo => todo,
-    "Done": todo => todo.isDone,
-    "UnDone": todo => !todo.isDone
-  }
 
   const inputChange = (e) => {
     setValue(e.target.value)
@@ -80,6 +77,12 @@ const Todo = () => {
     setEditId(id)
   }
 
+  const FILTER_MAP = {
+    "all": todos => todos,
+    "done": todos => todos.isDone,
+    "unDone": todos => !todos.isDone,
+  }
+
   const todoList = todos
     .filter(FILTER_MAP[filter])
     .map((todo) => (
@@ -111,9 +114,9 @@ const Todo = () => {
           <Button onClick={todosHandler}>提交</Button>
         )}
         <div>
-          <ButtonFilter onClick={() => setFilter("All")}>全部</ButtonFilter>
-          <ButtonFilter backgroundColor="#dff" onClick={() => setFilter("Done")}>已完成</ButtonFilter>
-          <ButtonFilter backgroundColor="#fdd" onClick={() => setFilter("UnDone")}>未完成</ButtonFilter>
+          <ButtonFilter onClick={() => dispatch(allFilter({ todos }))}>全部</ButtonFilter>
+          <ButtonFilter backgroundColor="#dff" onClick={() => dispatch(doneFilter({ todos }))}>已完成</ButtonFilter>
+          <ButtonFilter backgroundColor="#fdd" onClick={() => dispatch(unDoneFilter({ todos }))}>未完成</ButtonFilter>
         </div>
         <hr></hr>
         {todoList}
